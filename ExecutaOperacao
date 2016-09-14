@@ -1,0 +1,120 @@
+function ExecutaOperacao(expressao: String): String;
+const
+  delimitador : array[0..2] of string[2]= ('()', '[]', '{}');
+var
+  cont, con, i : integer;
+
+    function executaOperacaoMD(operacao: String): String;
+    var
+      cont, con : integer;
+      resultado : Real;
+      numero, numero2 : String;
+    begin
+       Try
+          Try
+              resultado := 0.0;
+              for cont := 1 to Length(operacao) do
+                  if operacao[cont] in ['*', '/'] then
+                  begin
+                      for con := cont-1 DownTo 1 do
+                          if not(operacao[con] in ['0'..'9']) and not (operacao[con] in [','])   then
+                          begin
+                              numero:= copy(operacao, con+1, cont-(con+1));
+                              Break;
+                          end
+                          else if con = 1 then
+                            numero:= copy(operacao, con, cont-(con));
+
+                      for con := cont+1 to Length(operacao) do
+                          if (operacao[con] in ['0'..'9']) or (operacao[con] in [',']) then
+                          begin
+                              numero2:= numero2 + operacao[con];
+                          end
+                          else Break;
+
+                      if operacao[cont] = '*' then
+                          resultado := StrToFloatDef(numero,0) * StrToFloatDef(numero2,0)
+                      else if operacao[cont] = '/' then
+                          resultado := StrToFloatDef(numero,0) / StrToFloatDef(numero2,0);
+                      operacao := executaOperacaoMD(StringReplace(operacao, numero+operacao[cont]+numero2, FloatToStr(resultado), [rfReplaceAll, rfIgnoreCase]));
+                      Break;
+                  end;
+            Except
+                operacao := '';
+            end
+        Finally
+            Result := operacao;
+        End;
+    end;
+    //-------------
+    function executaOperacaoSR(operacao: String): String;
+    var
+      cont, con : integer;
+      resultado : Real;
+      numero, numero2 : String;
+    begin
+      Try
+          Try
+              resultado := 0.0;
+              for cont := 1 to Length(operacao) do
+                  if (operacao[cont] in ['-', '+']) and (cont > 1) then
+                  begin
+                      for con := cont-1 DownTo 1 do
+                          if con = 1 then
+                            numero:= copy(operacao, con, cont-(con))
+
+                          else if not(operacao[con] in ['0'..'9']) and not (operacao[con] in [','])  then
+                          begin
+                              numero:= copy(operacao, con+1, cont-(con+1));
+                              Break;
+                          end;
+                      for con := cont+1 to Length(operacao) do
+                          if (operacao[con] in ['0'..'9']) or (operacao[con] in [','])  then
+                          begin
+                              numero2:= numero2 + operacao[con];
+                          end
+                          else Break;
+
+                      if operacao[cont] = '-' then
+                          resultado := StrToFloatDef(numero,0) - StrToFloatDef(numero2,0)
+                      else if operacao[cont] = '+' then
+                          resultado := StrToFloatDef(numero,0) + StrToFloatDef(numero2,0);
+
+                      operacao := executaOperacaoSR(StringReplace(operacao, numero+operacao[cont]+numero2, FloatToStr(resultado), [rfReplaceAll, rfIgnoreCase]));
+                      Break;
+                  end;
+          Except
+              operacao := '';
+          end
+      Finally
+          Result := operacao;
+      End;
+    end;
+begin
+    Try
+        Try
+            //Lima a Expressão
+            expressao := StringReplace(expressao, ' ','', [rfReplaceAll, rfIgnoreCase]);  // Precisa do UNIT SysUtils
+
+            //Executa Recursivamente a verba seguindo a prioridade da ordem do delimit
+            for cont:= 1 to Length(expressao) do
+                for i := 0 to 3 do
+                    if expressao[cont] in [delimitador[i][1]] then
+                        for con := cont+1 to Length(expressao) do
+                            if (expressao[con] = delimitador[i][2]) then
+                            begin
+                                expressao := StringReplace(expressao, Copy(expressao, cont, (con-cont)+1), executaOperacao(Copy(expressao, cont+1,con-(cont+1))), [rfReplaceAll, rfIgnoreCase]);
+                                Break;
+                            end;
+
+            // Executa as operações de multiplicação, divisão, soma e subtração
+            expressao := executaOperacaoMD(expressao);
+            expressao := executaOperacaoSR(expressao);
+        Except
+            ShowMessage('Aconteceu um erro ao executar a operação: ');  // Precisa do UNIT Dialogs
+            expressao := '';
+        end
+    Finally
+        Result :=expressao;
+    End;
+end;
