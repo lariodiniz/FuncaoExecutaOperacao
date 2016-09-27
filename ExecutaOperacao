@@ -96,14 +96,14 @@ begin
             //Lima a Expressão
             expressao := StringReplace(expressao, ' ','', [rfReplaceAll, rfIgnoreCase]);  // Precisa do UNIT SysUtils
 
-            //Executa Recursivamente a verba seguindo a prioridade da ordem do delimit
+            //Executa Recursivamente a expressão seguindo a prioridade da ordem do delimit
             for cont:= 1 to Length(expressao) do
                 for i := 0 to 3 do
                     if expressao[cont] in [delimitador[i][1]] then
-                        for con := cont+1 to Length(expressao) do
-                            if (expressao[con] = delimitador[i][2]) then
+                        for con := Length(expressao) Downto cont+1 do
+                            if (expressao[con] = delimit[i][2]) then
                             begin
-                                expressao := StringReplace(expressao, Copy(expressao, cont, (con-cont)+1), executaOperacao(Copy(expressao, cont+1,con-(cont+1))), [rfReplaceAll, rfIgnoreCase]);
+                                expressao := StringReplace(expressao, Copy(expressao, cont, (con-cont)+1), ExecutaVerba(Copy(expressao, cont+1,con-(cont+1)), verb), [rfReplaceAll, rfIgnoreCase]);
                                 Break;
                             end;
 
