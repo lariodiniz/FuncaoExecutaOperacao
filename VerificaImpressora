@@ -1,0 +1,51 @@
+Adicionar no use Printers
+
+
+declaração da função ----------
+
+
+function ExecutaVerba(expressao, verb, tabela, proposta, ident, tip: String; temp: Boolean): String;
+Function VerificaImpressora(MostrarNome: Boolean = False) : Boolean;
+
+
+Função ------------
+
+Function VerificaImpressora(MostrarNome: Boolean = False) : Boolean;
+{ **************************************************************************** }
+{  Verifica se Existe alguma impressora padrão selecionada.                    }
+{                                                                              }
+{   - MostrarNome: Um Booleano pré definido como falso, caso seja verdadeiro   }
+{                  mostra o nome da impressora padrão se existir alguma.       }
+{ Autor: Lário Diniz                                                           }
+{                                                                              }
+{ **************************************************************************** }
+var
+   Device,Driver,Port : array[0..255] of char;
+   hDMode : THandle;
+begin
+     Try
+        Try
+            Printer.Orientation := poLandscape; //Testa se a impressora esta imprimindo.
+
+            if MostrarNome then
+            begin
+                Result := True;
+                Printer.GetPrinter(Device, Driver, Port, hDMode);
+                MESSAGEDLG('A Impressora padrão selecionada é: '+Device, mtInformation, [ mbok],0);
+            end;
+
+            Result := True;
+
+        except;
+            MESSAGEDLG('Erro ao tentar localizar impressora.', mtError, [ mbok],0);
+            Result := False;
+        end;
+    finally
+    end;
+end;
+
+
+
+Para Usar a Função, coloque antes de chamar os FORMS de quick.Report
+
+if not VerificaImpressora() then Abort;
