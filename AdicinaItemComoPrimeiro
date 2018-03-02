@@ -1,0 +1,16 @@
+procedure AdicinaItemComoPrimeiro(item: String; ListBox: TListBox);
+var
+  itens : array of string;
+  cont: integer;
+begin
+  SetLength(itens, ListBox.Items.Count);
+  for cont := 0 to ListBox.Items.Count-1 do
+    itens[cont] := ListBox.Items[cont];
+
+  ListBox.Items.Clear;
+  ListBox.Items.Add(item);
+
+
+  for cont := 0 to Length(itens)-1 do
+    ListBox.Items.Add(itens[cont]);
+end;
